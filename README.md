@@ -2,6 +2,7 @@ polargraph_serverGP
 ====================
 
 My project is based on Sandy Noble's super polargraph.co.uk project
+
 This Polargraph server  version is connected to the fantastic GCODE converter of Scott-Cooper!
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
