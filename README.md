@@ -1,50 +1,58 @@
-polargraph_serverGP
-====================
+# Drawbot_image_to_gcode_v2
+Written by Scott-Cooper
+https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2
 
-My project is based on Sandy Noble's super polargraph.co.uk project
+This version is a little modified version for the Hungarian keyboard layout 
+and for compatibility with the Polargraph server's GCODE queue format
 
-This Polargraph server  version is connected to the fantastic GCODE converter of Scott-Cooper!
+This code is used to generate gcode for drawbots, polargraphs or other vertical drawing machines. \
+It takes an original image, manipulates it and generates a drawing path that kinda sorta looks like the original image. \
+This code was specifically written to work with multiple Copic markers. \
+The code was intended to be heavily modified to generate different and unique drawing styles.
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+If your clipboard contains a URL to an image, the code will download it.  This makes finding usable images easy and straight forword.
+If your clipboard contains a URL to a web site, the code will crash and burn in a spectacular fashion.
 
-My Polargraph server works WITHOUT Polarshield touchscreen, only with standard components!
-Arduino Mega
-standard LCD 4x20
-1 x Rotary Encoder
-4 x pushbutton
+## Key Bindings:
+| Key | Description |
+| ------------- |:-------------|
+| r | Rotate drawing |
+| [ | Zoom in |
+| ] | Zoom out |
+| \ | Reset drawing zoom, offset and rotation |
+| O | Display original image (capital letter) |
+| o | Display image to be drawn after pre-processing (lower case letter) |
+| l | Display image after the path finding module has manipulated it |
+| d | Display drawing with all pens |
+| Q | Display drawing, pen 0 only |
+| W | Display drawing, pen 1 only |
+| E | Display drawing, pen 2 only |
+| R | Display drawing, pen 3 only |
+| T | Display drawing, pen 4 only |
+| Z | Display drawing, pen 5 only |
+| S | Stop path finding prematurely |
+| Esc | Exit running program |
+| < | Decrease the total number of lines drawn |
+| > | Increase the total number of lines drawn |
+| G | Generate GCode with lines as displayed |
+| t | Redistribute percentage of lines drawn by each pen evenly |
+| y | Redistribute 100% of lines drawn to pen 0 ( Black/White/Sharpie ) |
+| 9 | Change distribution of lines drawn (lighten) |
+| 0 | Change distribution of lines drawn (darken) |
+| 1 | Increase percentage of lines drawn by pen 0 |
+| 2 | Increase percentage of lines drawn by pen 1 |
+| 3 | Increase percentage of lines drawn by pen 2 |
+| 4 | Increase percentage of lines drawn by pen 3 |
+| 5 | Increase percentage of lines drawn by pen 4 |
+| 6 | Increase percentage of lines drawn by pen 5 |
+| shift 0 | Decrease percentage of lines drawn by pen 0 |
+| shift 1 | Decrease percentage of lines drawn by pen 1 |
+| shift 2 | Decrease percentage of lines drawn by pen 2 |
+| shift 3 | Decrease percentage of lines drawn by pen 3 |
+| shift 4 | Decrease percentage of lines drawn by pen 4 |
+| shift 5 | Decrease percentage of lines drawn by pen 5 |
+| { | Change Copic marker sets, increment |
+| } | Change Copic marker sets, decrement |
 
-1 x Datalogger Shield with SD card. 
-	Modified for MEGA pinout!!!
-	UNO  ----> MEGA
-	A4,A5  --> Pin 20,21   (SCL,SDA)
-	11,12,13-->50,51,52 (SPI bus)
 
-2 x PicoDrive Stepper driver modul
-
-Extended GCODE command set. Drawing directly from SD card or from PC with Sandy Noble's Controller.
-https://github.com/euphy/polargraphcontroller 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-This Polargraph server is connected with the fantastic GCODE converter of Scott-Cooper!
-Original version: https://github.com/Scott-Cooper/Drawbot_image_to_gcode_v2
-Adapted for Polargraph queue format: https://github.com/gpeter62/Drawbot_image_to_gcode_v2
-
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-Polargraph
-----------
-Polargraph is the name of the project, and is a portmanteau word invented by the writer
-solely for this purpose. Any machine that runs the Polargraph software is technically a 
-polargraph machine. I usually reserve the big-P "Polargraph" for things made by
-The Polargraph Company, including the Polargraph software and PolargraphSD machine.
-
-Other hanging-v plotters are probably compatible with Polargraph software, but unless
-they run it, they are not even polargraphs with a small P.
-
-Project and software written by Sandy Noble.
-
-Released under GNU License version 3.
-
-http://www.polargraph.co.uk
-
-
+Examples of drawings made with this software:  http://dullbits.com/drawbot/gallery
