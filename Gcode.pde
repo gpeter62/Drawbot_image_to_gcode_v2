@@ -2,23 +2,25 @@
 // No, it's not a fancy dancy class like the snot nosed kids are doing these days.
 // Now get the hell off my lawn.
 
+//Output file commands format modified for the needs of the Polargraph server's queue format by Peter Gautier
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void gcode_header() {
-  OUTPUT.println("G21");
-  OUTPUT.println("G90");
-  OUTPUT.println("G1 Z0");
+  OUTPUT.println("G21,END");
+  OUTPUT.println("G90,END");
+  OUTPUT.println("G1,Z0,END");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void gcode_trailer() {
-  OUTPUT.println("G1 Z0");
-  OUTPUT.println("G1 X0.10 y0.10");
-  OUTPUT.println("G1 X0 y0");
+  OUTPUT.println("G1,Z0,END");
+  OUTPUT.println("G1,0.10,0.10,END");
+  OUTPUT.println("G1,0,0,END");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void gcode_comment(String comment) {
-  gcode_comments += ("(" + comment + ")") + "\n";
+  gcode_comments += ("G99,(" + comment + "),END")+ "\n";
   println(comment);
 }
 
@@ -45,6 +47,13 @@ void move_abs(float x, float y) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+String gcode_format (Float n) {
+  String s = nf(n, 0, gcode_decimals);
+  s = s.replace('.', gcode_decimal_seperator);
+  s = s.replace(',', gcode_decimal_seperator);
+  return s; 
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 void create_gcode_files (int line_count) {
   boolean is_pen_down;
   int pen_lifts;
@@ -56,7 +65,7 @@ void create_gcode_files (int line_count) {
   float distance;
   
   // Loop over all lines for every pen.
-  for (int p=0; p<pen_count; p++) {    
+  for(int p=0; p<pen_count; p++) {    
     is_pen_down = false;
     pen_lifts = 2;
     pen_movement = 0;
@@ -66,10 +75,10 @@ void create_gcode_files (int line_count) {
     y = 0;
     String gname = "gcode\\gcode_" + basefile_selected + "_pen" + p + "_" + copic_sets[current_copic_set][p] + ".txt";
     OUTPUT = createWriter(sketchPath("") + gname);
-    OUTPUT.println(gcode_comments);
+//    OUTPUT.println(gcode_comments);
     gcode_header();
     
-    for (int i=1; i<line_count; i++) { 
+    for(int i=1; i<line_count; i++) { 
       if (d1.lines[i].pen_number == p) {
         
         float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale + gcode_offset_x;
@@ -80,10 +89,10 @@ void create_gcode_files (int line_count) {
  
         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
           // Oh crap, where the line starts is not where I am, pick up the pen and move there.
-          OUTPUT.println("G1 Z0");
+          OUTPUT.println("G1,Z0,END");
           is_pen_down = false;
           distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-          String buf = "G1 X" + nf(gcode_scaled_x1,0,2) + " Y" + nf(gcode_scaled_y1,0,2);
+          String buf = "G1," + gcode_format(gcode_scaled_x1) + ";" + gcode_format(gcode_scaled_y1)+",END";
           OUTPUT.println(buf);
           x = gcode_scaled_x1;
           y = gcode_scaled_y1;
@@ -93,21 +102,21 @@ void create_gcode_files (int line_count) {
         
         if (d1.lines[i].pen_down) {
           if (is_pen_down == false) {
-            OUTPUT.println("G1 Z1");
+            OUTPUT.println("G1,Z1,END");
             is_pen_down = true;
           }
           pen_drawing = pen_drawing + distance;
           lines_drawn++;
         } else {
           if (is_pen_down == true) {
-            OUTPUT.println("G1 Z0");
+            OUTPUT.println("G1,Z0,END");
             is_pen_down = false;
             pen_movement = pen_movement + distance;
             pen_lifts++;
           }
         }
         
-        String buf = "G1 X" + nf(gcode_scaled_x2,0,2) + " Y" + nf(gcode_scaled_y2,0,2);
+        String buf = "G1," + gcode_format(gcode_scaled_x2) + "," + gcode_format(gcode_scaled_y2)+",END";
         OUTPUT.println(buf);
         x = gcode_scaled_x2;
         y = gcode_scaled_y2;
@@ -117,16 +126,23 @@ void create_gcode_files (int line_count) {
     }
     
     gcode_trailer();
-    OUTPUT.println("(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet)");
-    OUTPUT.println("(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet)");
-    OUTPUT.println("(Extreams of X: " + dx.min + " thru " + dx.max + ")");
-    OUTPUT.println("(Extreams of Y: " + dy.min + " thru " + dy.max + ")");
+ //   OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet),END");
+ //   OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet,END");
+ //   OUTPUT.println("G99,(Extreams of X: " + dx.min + " thru " + dx.max + "),END");
+ //   OUTPUT.println("G99,(Extreams of Y: " + dy.min + " thru " + dy.max + "),END");
     OUTPUT.flush();
     OUTPUT.close();
-    println("gcode created:  " + gname);
+    println("gcode created for pen " + gname);
   }
 }
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+void create_gcode_comment_file () {
+  String gname = "gcode\\gcode_" + basefile_selected + "_comment.txt";
+  OUTPUT = createWriter(sketchPath("") + gname);
+  OUTPUT.println(gcode_comments);
+  OUTPUT.flush();
+  OUTPUT.close();
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void create_gcode_test_file () {
   // The dx.min are already scaled to gcode.
@@ -134,47 +150,48 @@ void create_gcode_test_file () {
   
   String gname = "gcode\\gcode_" + basefile_selected + "_test.txt";
   OUTPUT = createWriter(sketchPath("") + gname);
-  OUTPUT.println("(This is a test file to draw the extreams of the drawing area.)");
-  OUTPUT.println("(Draws a 2 inch mark on all four corners of the paper.)");
-  OUTPUT.println("(WARNING:  pen will be down.)");
-  OUTPUT.println("(Extreams of X: " + dx.min + " thru " + dx.max + ")");
-  OUTPUT.println("(Extreams of Y: " + dy.min + " thru " + dy.max + ")");
+//  OUTPUT.println("G99,(This is a test file to draw the extreams of the drawing area.),END");
+//  OUTPUT.println("G99,(Draws a 2 inch mark on all four corners of the paper.),END");
+//  OUTPUT.println("G99,(WARNING:  pen will be down.),END");
+  OUTPUT.println("G99,(Max X: " + dx.min + " thru " + dx.max + "),END");
+  OUTPUT.println("G99,(Max Y: " + dy.min + " thru " + dy.max + "),END");
   gcode_header();
   
-  OUTPUT.println("(Upper left)");
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.min + test_length,0,2));
-  OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.min,0,2));
-  OUTPUT.println("G1 X" + nf(dx.min + test_length,0,2) + " Y" + nf(dy.min,0,2));
-  OUTPUT.println("G1 Z0");
+  OUTPUT.println("G99,(Upper left),END");
+  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.min + test_length)+",END");
+  OUTPUT.println("G1,Z1,END");
+  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.min)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.min + test_length) + "," + gcode_format(dy.min)+",END");
+  OUTPUT.println("G1,Z0,END");
 
-  OUTPUT.println("(Upper right)");
-  OUTPUT.println("G1 X" + nf(dx.max - test_length,0,2) + " Y" + nf(dy.min,0,2));
-  OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.min,0,2));
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.min + test_length,0,2));
-  OUTPUT.println("G1 Z0");
+  OUTPUT.println("G99,(Upper right),END");
+  OUTPUT.println("G1," + gcode_format(dx.max - test_length) + "," + gcode_format(dy.min)+",END");
+  OUTPUT.println("G1,Z1,END");
+  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.min)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.min + test_length)+",END");
+  OUTPUT.println("G1,Z0,END");
 
-  OUTPUT.println("(Lower right)");
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.max - test_length,0,2));
-  OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.max,0,2) + " Y" + nf(dy.max,0,2));
-  OUTPUT.println("G1 X" + nf(dx.max - test_length,0,2) + " Y" + nf(dy.max,0,2));
-  OUTPUT.println("G1 Z0");
+  OUTPUT.println("G99;(Lower right),END");
+  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.max - test_length)+",END");
+  OUTPUT.println("G1,Z1,END");
+  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.max)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.max - test_length) + "," + gcode_format(dy.max)+",END");
+  OUTPUT.println("G1,Z0,END");
 
-  OUTPUT.println("(Lower left)");
-  OUTPUT.println("G1 X" + nf(dx.min + test_length,0,2) + " Y" + nf(dy.max,0,2));
-  OUTPUT.println("G1 Z1");
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.max,0,2));
-  OUTPUT.println("G1 X" + nf(dx.min,0,2) + " Y" + nf(dy.max - test_length,0,2));
-  OUTPUT.println("G1 Z0");
+  OUTPUT.println("G99;(Lower left),END");
+  OUTPUT.println("G1," + gcode_format(dx.min + test_length) + "," + gcode_format(dy.max)+",END");
+  OUTPUT.println("G1,Z1,END");
+  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.max)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.max - test_length)+",END");
+  OUTPUT.println("G1,Z0,END");
 
   gcode_trailer();
   OUTPUT.flush();
   OUTPUT.close();
-  println("gcode test created:  " + gname);
+  println("gcode test file created");
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // Thanks to Vladimir Bochkov for helping me debug the SVG international decimal separators problem.
 String svg_decimal (String s) {
@@ -247,6 +264,6 @@ void create_svg_file (int line_count) {
   OUTPUT.flush();
   OUTPUT.close();
   println("SVG created:  " + gname);
-}
+} 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

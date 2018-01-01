@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 // My Drawbot, "Death to Sharpie"
-// Jpeg to gcode simplified (kinda sorta works version, v3.71 (beta))
+// Jpeg to gcode simplified (kinda sorta works version, v3.7 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
 //
@@ -19,13 +19,16 @@ import processing.pdf.*;
 Pfm_original  pfm;
 //Pfm_your_version  pfm;
 
-// Constants 
-final float   paper_size_x = 32 * 25.4;
-final float   paper_size_y = 40 * 25.4;
-final float   image_size_x = 28 * 25.4;
-final float   image_size_y = 36 * 25.4;
-final float   paper_top_to_origin = 285;  //mm, make smaller to move drawing down on paper
+// Constants                               //original sizes
+final float   paper_size_x = 32 * 25.4;    //32
+final float   paper_size_y = 40 * 25.4;    //40
+final float   image_size_x = 28 * 25.4;    //28
+final float   image_size_y = 36 * 25.4;    //36
+final float   paper_top_to_origin = 285;  //285 mm, make smaller to move drawing down on paper
 final int     pen_count = 6;
+final char    gcode_decimal_seperator = '.';    
+final int     gcode_decimals = 2;             // Number of digits right of the decimal point in the gcode files.
+final int     svg_decimals = 2;               // Number of digits right of the decimal point in the SVG file.
 
 
 // Every good program should have a shit pile of badly named globals.
@@ -129,7 +132,7 @@ void draw() {
   case 1: 
     // Waiting for filename selection
     break;
-  case 2:
+  case 2: 
     //println("State=2, Setup squiggles");
     setup_squiggles();
     startTime = millis();
@@ -231,7 +234,7 @@ void grid() {
   // It looks like a big logic bug, but it just can't display a one pixel line scaled down well.
   
   blendMode(BLEND);
-  if (is_grid_on) {
+  if(is_grid_on) {
     int image_center_x = int(img.width / 2);
     int image_center_y = int(img.height / 2);
     int gridlines = 100;
@@ -347,7 +350,7 @@ void keyPressed() {
   if (key == 'E') { display_mode = "pen";  pen_selected = 2; }
   if (key == 'R') { display_mode = "pen";  pen_selected = 3; }
   if (key == 'T') { display_mode = "pen";  pen_selected = 4; }
-  if (key == 'Y') { display_mode = "pen";  pen_selected = 5; }
+  if (key == 'Z') { display_mode = "pen";  pen_selected = 5; }
   if (key == 'G') { is_grid_on = ! is_grid_on; }
   if (key == ']') { screen_scale *= 1.05; }
   if (key == '[') { screen_scale *= 1 / 1.05; }
@@ -357,12 +360,12 @@ void keyPressed() {
   if (key == '4') { pen_distribution[3] *= 1.1; }
   if (key == '5') { pen_distribution[4] *= 1.1; }
   if (key == '6') { pen_distribution[5] *= 1.1; }
-  if (key == '!') { pen_distribution[0] *= 0.9; }
-  if (key == '@') { pen_distribution[1] *= 0.9; }
-  if (key == '#') { pen_distribution[2] *= 0.9; }
-  if (key == '$') { pen_distribution[3] *= 0.9; }
-  if (key == '%') { pen_distribution[4] *= 0.9; }
-  if (key == '^') { pen_distribution[5] *= 0.9; }
+  if (key == '§') { pen_distribution[0] *= 0.9; }
+  if (key == '\'') { pen_distribution[1] *= 0.9; }
+  if (key == '"') { pen_distribution[2] *= 0.9; }
+  if (key == '+') { pen_distribution[3] *= 0.9; }
+  if (key == '!') { pen_distribution[4] *= 0.9; }
+  if (key == '%') { pen_distribution[5] *= 0.9; }
   if (key == 't') { set_even_distribution(); }
   if (key == 'y') { set_black_distribution(); }
   if (key == '}') { current_copic_set++; }
@@ -386,22 +389,23 @@ void keyPressed() {
   }
   if (key == 'g') { 
     create_gcode_files(display_line_count);
-    create_gcode_test_file ();
     create_svg_file(display_line_count);
+    create_gcode_test_file ();
+    create_gcode_comment_file ();
     d1.render_to_pdf(display_line_count);
     //save_jpg();
   }
 
   if (key == '\\') { screen_scale = screen_scale_org; screen_rotate=0; mx=0; my=0; }
   if (key == '<') {
-    int delta = -10000;
+    int delta = -5000;
     display_line_count = int(display_line_count + delta);
     if (display_line_count < 0) { display_line_count = 0; }
     display_line_count = constrain(display_line_count, 0, d1.line_count);
     println("display_line_count: " + display_line_count);
   }
   if (key == '>') {
-    int delta = 10000;
+    int delta = 5000;
     display_line_count = int(display_line_count + delta);
     display_line_count = constrain(display_line_count, 0, d1.line_count);
     println("display_line_count: " + display_line_count);
@@ -454,9 +458,10 @@ void set_black_distribution() {
   println("set_black_distribution");
   for (int p=0; p<pen_count; p++) {
     pen_distribution[p] = 0;
-    //println("pen_distribution[" + p + "] = " + pen_distribution[p]);
+   // println("pen_distribution[" + p + "] = " + pen_distribution[p]);
   }
   pen_distribution[0] = display_line_count;
+  
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
