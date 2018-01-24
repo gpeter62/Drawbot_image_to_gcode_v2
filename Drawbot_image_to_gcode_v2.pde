@@ -19,12 +19,12 @@ import processing.pdf.*;
 Pfm_original  pfm;
 //Pfm_your_version  pfm;
 
-// Constants                               //original sizes
-final float   paper_size_x = 32 * 25.4;    //32
-final float   paper_size_y = 40 * 25.4;    //40
-final float   image_size_x = 28 * 25.4;    //28
-final float   image_size_y = 36 * 25.4;    //36
-final float   paper_top_to_origin = 285;  //285 mm, make smaller to move drawing down on paper
+// Constants                          //original sizes
+final float   paper_size_x = 420;      //32 * 25.4  =  812.8
+final float   paper_size_y = 590;      //40 * 25.4  = 1016.0
+final float   image_size_x = 420-40;    //28 * 25.4  =  711.2
+final float   image_size_y = 590-40;    //36 * 25.4  =  914.4
+final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
 final int     pen_count = 6;
 final char    gcode_decimal_seperator = '.';    
 final int     gcode_decimals = 2;             // Number of digits right of the decimal point in the gcode files.

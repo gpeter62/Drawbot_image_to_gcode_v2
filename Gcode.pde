@@ -73,7 +73,7 @@ void create_gcode_files (int line_count) {
     lines_drawn = 0;
     x = 0;
     y = 0;
-    String gname = "gcode\\gcode_" + basefile_selected + "_pen" + p + "_" + copic_sets[current_copic_set][p] + ".txt";
+    String gname = "gcode\\" + basefile_selected + "PEN" + p + "_" + copic_sets[current_copic_set][p] + ".txt";
     OUTPUT = createWriter(sketchPath("") + gname);
 //    OUTPUT.println(gcode_comments);
     gcode_header();
@@ -148,7 +148,7 @@ void create_gcode_test_file () {
   // The dx.min are already scaled to gcode.
   float test_length = 25.4 * 2;
   
-  String gname = "gcode\\gcode_" + basefile_selected + "_test.txt";
+  String gname = "gcode\\" + basefile_selected + "TEST.txt";
   OUTPUT = createWriter(sketchPath("") + gname);
 //  OUTPUT.println("G99,(This is a test file to draw the extreams of the drawing area.),END");
 //  OUTPUT.println("G99,(Draws a 2 inch mark on all four corners of the paper.),END");
