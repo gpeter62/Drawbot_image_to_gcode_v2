@@ -21,7 +21,7 @@ class PFM_spiral implements pfm {
   public void find_path() {
     color c = 0;                               // Sampled color
     float b;                                   // Sampled brightness
-    float dist = 7;                            // Distance between rings
+    float dist = 2;                            // Distance between rings
     float radius = dist/2;                     // Current radius
     float aradius = 1;                         // Radius with brighness applied up
     float bradius = 1;                         // Radius with brighness applied down

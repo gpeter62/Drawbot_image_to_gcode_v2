@@ -26,7 +26,7 @@ final float   paper_size_y = 295;      //40 * 25.4  = 1016.0
 final float   image_size_x = 210-40;    //28 * 25.4  =  711.2
 final float   image_size_y = 295-40;    //36 * 25.4  =  914.4
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
-final int     pen_count = 6;
+final int     pen_count = 3;
 
 
 
@@ -82,7 +82,8 @@ botDrawing d1;
 float[] pen_distribution = new float[pen_count];
 
 String[][] copic_sets = {
-  {"100", "N10", "N8", "N6", "N4", "N2"},       // Dark Greys
+  {"100", "N10", "N2", "N2", "N2", "N2"},       // Dark Greys
+//  {"100", "N10", "N8", "N6", "N4", "N2"},       // Dark Greys
   {"100", "100", "N7", "N5", "N3", "N2"},       // Light Greys
   {"100", "W10", "W8", "W6", "W4", "W2"},       // Warm Greys
   {"100", "C10", "C8", "C6", "C4", "C2"},       // Cool Greys

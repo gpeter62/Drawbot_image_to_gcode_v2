@@ -12,7 +12,7 @@ void gcode_header() {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void gcode_trailer() {
   OUTPUT.println("G1,Z0,END");
-  //OUTPUT.println("G1," + gcode_format(0.1) + "," + gcode_format(0.1)+",END");
+  OUTPUT.println("G1," + gcode_format(0.1) + "," + gcode_format(0.1)+",END");
   OUTPUT.println("G1,0,0,END");
 }
 
@@ -126,10 +126,10 @@ void create_gcode_files (int line_count) {
     }
     
     gcode_trailer();
- //   OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet),END");
- //   OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet,END");
- //   OUTPUT.println("G99,(Extreams of X: " + dx.min + " thru " + dx.max + "),END");
- //   OUTPUT.println("G99,(Extreams of Y: " + dy.min + " thru " + dy.max + "),END");
+    OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet),END");
+    OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet,END");
+    OUTPUT.println("G99,(Extreams of X: " + dx.min + " thru " + dx.max + "),END");
+    OUTPUT.println("G99,(Extreams of Y: " + dy.min + " thru " + dy.max + "),END");
     OUTPUT.flush();
     OUTPUT.close();
     println("gcode created:  " + gname);
@@ -143,35 +143,35 @@ void create_gcode_test_file () {
   
   String gname = "gcode\\gcode_" + basefile_selected + "_test.txt";
   OUTPUT = createWriter(sketchPath("") + gname);
-//  OUTPUT.println("G99,(This is a test file to draw the extreams of the drawing area.),END");
-//  OUTPUT.println("G99,(Draws a 2 inch mark on all four corners of the paper.),END");
-//  OUTPUT.println("G99,(WARNING:  pen will be down.),END");
-//  OUTPUT.println("G99,(Max X: " + dx.min + " thru " + dx.max + "),END");
-//  OUTPUT.println("G99,(Max Y: " + dy.min + " thru " + dy.max + "),END");
+  OUTPUT.println("G99,(This is a test file to draw the extreams of the drawing area.),END");
+  OUTPUT.println("G99,(Draws a 2 inch mark on all four corners of the paper.),END");
+  OUTPUT.println("G99,(WARNING:  pen will be down.),END");
+  OUTPUT.println("G99,(Max X: " + dx.min + " thru " + dx.max + "),END");
+  OUTPUT.println("G99,(Max Y: " + dy.min + " thru " + dy.max + "),END");
   gcode_header();
   
-//  OUTPUT.println("G99,(Upper left),END");
+  OUTPUT.println("G99,(Upper left),END");
   OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.min + test_length)+",END");
   OUTPUT.println("G1,Z1,END");
   OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.min)+",END");
   OUTPUT.println("G1," + gcode_format(dx.min + test_length) + "," + gcode_format(dy.min)+",END");
   OUTPUT.println("G1,Z0,END");
 
-//  OUTPUT.println("G99,(Upper right),END");
+  OUTPUT.println("G99,(Upper right),END");
   OUTPUT.println("G1," + gcode_format(dx.max - test_length) + "," + gcode_format(dy.min)+",END");
   OUTPUT.println("G1,Z1,END");
   OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.min)+",END");
   OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.min + test_length)+",END");
   OUTPUT.println("G1,Z0,END");
 
-//  OUTPUT.println("G99,(Lower right),END");
+  OUTPUT.println("G99,(Lower right),END");
   OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.max - test_length)+",END");
   OUTPUT.println("G1,Z1,END");
   OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.max)+",END");
   OUTPUT.println("G1," + gcode_format(dx.max - test_length) + "," + gcode_format(dy.max)+",END");
   OUTPUT.println("G1,Z0,END");
 
-//  OUTPUT.println("G99,(Lower left),END");
+  OUTPUT.println("G99,(Lower left),END");
   OUTPUT.println("G1," + gcode_format(dx.min + test_length) + "," + gcode_format(dy.max)+",END");
   OUTPUT.println("G1,Z1,END");
   OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.max)+",END");
