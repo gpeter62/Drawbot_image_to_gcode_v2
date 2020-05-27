@@ -20,15 +20,27 @@ final float   paper_size_x = 420;      //32 * 25.4  =  812.8
 final float   paper_size_y = 590;      //40 * 25.4  = 1016.0
 final float   image_size_x = 420-40;    //28 * 25.4  =  711.2
 final float   image_size_y = 590-40;    //36 * 25.4  =  914.4
+
+//A4 parameters
+final float   paper_size_x = 210;      //32 * 25.4  =  812.8
+final float   paper_size_y = 295;      //40 * 25.4  = 1016.0
+final float   image_size_x = 210-20;    //28 * 25.4  =  711.2
+final float   image_size_y = 295-20;    //36 * 25.4  =  914.4
+
+//A5 parameters
+final float   paper_size_x = 210;      //32 * 25.4  =  812.8
+final float   paper_size_y = 147;      //40 * 25.4  = 1016.0
+final float   image_size_x = 147-20;    //28 * 25.4  =  711.2
+final float   image_size_y = 210-20;    //36 * 25.4  =  914.4
+
 */
 final float   paper_size_x = 210;      //32 * 25.4  =  812.8
 final float   paper_size_y = 295;      //40 * 25.4  = 1016.0
 final float   image_size_x = 210-40;    //28 * 25.4  =  711.2
 final float   image_size_y = 295-40;    //36 * 25.4  =  914.4
+
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
 final int     pen_count = 3;
-
-
 
 final float   pen_width = 0.4;               //mm, determines image_scale, reduce, if solid black areas are speckled with white holes.
 
@@ -82,7 +94,7 @@ botDrawing d1;
 float[] pen_distribution = new float[pen_count];
 
 String[][] copic_sets = {
-  {"100", "N10", "N2", "N2", "N2", "N2"},       // Dark Greys
+  {"N10", "N6", "N4", "N2", "N2", "N2"},       // Dark Greys
 //  {"100", "N10", "N8", "N6", "N4", "N2"},       // Dark Greys
   {"100", "100", "N7", "N5", "N3", "N2"},       // Light Greys
   {"100", "W10", "W8", "W6", "W4", "W2"},       // Warm Greys
@@ -228,8 +240,7 @@ void setup_squiggles() {
   gcode_scale_x = image_size_x / img.width;
   gcode_scale_y = image_size_y / img.height;
   gcode_scale = min(gcode_scale_x, gcode_scale_y);
-  gcode_offset_x = - (img.width * gcode_scale / 2.0);  
-  gcode_offset_y = - (paper_top_to_origin - (paper_size_y - (img.height * gcode_scale)) / 2.0);
+  gcode_offset_x = 0; gcode_offset_y = 0;
 
   screen_scale_x = width / (float)img.width;
   screen_scale_y = height / (float)img.height;
@@ -369,6 +380,8 @@ void keyPressed() {
 }
   if (key == 'g') { 
     create_gcode_files(display_line_count);
+    gcode_offset_x = (paper_size_x - (dx.max-dx.min)) / 2.0-dx.min;  
+    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dy.max-dy.min)) / 2.0 -dy.min;
     create_gcode_test_file ();
     create_svg_file(display_line_count);
     d1.render_to_pdf(display_line_count);

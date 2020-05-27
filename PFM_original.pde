@@ -5,13 +5,13 @@
 
 class PFM_original implements pfm {
 
-  final int    squiggle_length = 500;      //500 How often to lift the pen
+  final int    squiggle_length = 200;      //500 How often to lift the pen
   final int    adjustbrightness = 10;       //10  How fast it moves from dark to light, over-draw
-  final float  desired_brightness = 250;   // 250 How long to process.  You can always stop early with "s" key
-  final int    squiggles_till_first_change = 190;  //190
+  final float  desired_brightness = 240;   // 250 How long to process.  You can always stop early with "s" key
+  final int    squiggles_till_first_change = 2000;  //190
 
   int          tests = 720;                 // Reasonable values:  13 for development, 720 for final
-  int          line_length = int(random(3, 10));  // Reasonable values:  3 through 100
+  int          line_length = int(random(3, 30));  // Reasonable values:  3 through 100
 
   int          squiggle_count;
   int          darkest_x;
@@ -40,7 +40,7 @@ class PFM_original implements pfm {
     //image_invert();
     //image_blur(2);
     image_boarder("b2.png", 0, 0);
-    image_boarder("b10.png", 0, 0);
+    //image_boarder("b10.png", 0, 0);
     image_desaturate();
   }
   
@@ -133,7 +133,7 @@ class PFM_original implements pfm {
     //start_angle = 34 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/-7+26)) ));
     //if (squiggle_count <220) { tests = 20; } else { tests = 2; }
     //start_angle = random(20, 1);       // Cuba 1
-    start_angle = random(-72, -52);    // Spitfire
+    start_angle = random(-72, -52);    // Spitfire     GP ez volt az eredeti
     //start_angle = random(-120, -140);  // skier
     //start_angle = random(-360, -1);    // gradiant magic
     //start_angle = squiggle_count % 360;

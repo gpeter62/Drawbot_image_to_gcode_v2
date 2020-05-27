@@ -6,18 +6,21 @@
 void gcode_header() {
   OUTPUT.println("G21,END");
   OUTPUT.println("G90,END");
-  OUTPUT.println("G1,Z0,END");
+  //OUTPUT.println("G1,Z0,END");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void gcode_trailer() {
-  OUTPUT.println("G1,Z0,END");
-  OUTPUT.println("G1," + gcode_format(0.1) + "," + gcode_format(0.1)+",END");
-  OUTPUT.println("G1,0,0,END");
+  if (is_pen_down == true) {
+            OUTPUT.println("G1,Z0,END");
+            is_pen_down = false;
+  }
+  //OUTPUT.println("G1," + gcode_format(0.1) + "," + gcode_format(0.1)+",END");
+  //OUTPUT.println("G1,0,0,END");
 }
 
 void gcode_comment(String comment) {
-  gcode_comments += ("G99,(" + comment + "),END")+ "\n";
+  gcode_comments += ("G99,(" + comment + ")")+ "\n";
   println(comment);
 }
 
@@ -89,10 +92,12 @@ void create_gcode_files (int line_count) {
  
         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
           // Oh crap, where the line starts is not where I am, pick up the pen and move there.
-          OUTPUT.println("G1,Z0,END");
-          is_pen_down = false;
+          if (is_pen_down == true) {
+            OUTPUT.println("G1,Z0,END");
+            is_pen_down = false;
+          }
           distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-          String buf = "G1," + gcode_format(gcode_scaled_x1) + " " + gcode_format(gcode_scaled_y1)+",END";
+          String buf = "G1," + gcode_format(gcode_scaled_x1+gcode_offset_x) + "," + gcode_format(gcode_scaled_y1+gcode_offset_y)+",END";
           OUTPUT.println(buf);
           x = gcode_scaled_x1;
           y = gcode_scaled_y1;
@@ -116,7 +121,7 @@ void create_gcode_files (int line_count) {
           }
         }
         
-        String buf = "G1," + gcode_format(gcode_scaled_x2) + "," + gcode_format(gcode_scaled_y2)+",END";
+        String buf = "G1," + gcode_format(gcode_scaled_x2+gcode_offset_x) + "," + gcode_format(gcode_scaled_y2+gcode_offset_y)+",END";
         OUTPUT.println(buf);
         x = gcode_scaled_x2;
         y = gcode_scaled_y2;
@@ -126,10 +131,10 @@ void create_gcode_files (int line_count) {
     }
     
     gcode_trailer();
-    OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet),END");
-    OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet,END");
-    OUTPUT.println("G99,(Extreams of X: " + dx.min + " thru " + dx.max + "),END");
-    OUTPUT.println("G99,(Extreams of Y: " + dy.min + " thru " + dy.max + "),END");
+    OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet)");
+    OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet");
+    OUTPUT.println("G99,(Extreams of X: " + dx.min + " thru " + dx.max + ")");
+    OUTPUT.println("G99,(Extreams of Y: " + dy.min + " thru " + dy.max + ")");
     OUTPUT.flush();
     OUTPUT.close();
     println("gcode created:  " + gname);
@@ -143,40 +148,58 @@ void create_gcode_test_file () {
   
   String gname = "gcode\\gcode_" + basefile_selected + "_test.txt";
   OUTPUT = createWriter(sketchPath("") + gname);
-  OUTPUT.println("G99,(This is a test file to draw the extreams of the drawing area.),END");
-  OUTPUT.println("G99,(Draws a 2 inch mark on all four corners of the paper.),END");
-  OUTPUT.println("G99,(WARNING:  pen will be down.),END");
-  OUTPUT.println("G99,(Max X: " + dx.min + " thru " + dx.max + "),END");
-  OUTPUT.println("G99,(Max Y: " + dy.min + " thru " + dy.max + "),END");
+  OUTPUT.println("G99,(This is a test file to draw the extreams of the drawing area.)");
+  OUTPUT.println("G99,(Draws a 2 inch mark on all four corners of the paper.)");
+  OUTPUT.println("G99,(WARNING:  pen will be down.)");
+  OUTPUT.println("G99,(paper_size_x: " + paper_size_x + ")");
+  OUTPUT.println("G99,(paper_size_y: " + paper_size_y + ")");
+  OUTPUT.println("G99,(image_size_x: " + image_size_x + ")");
+  OUTPUT.println("G99,(image_size_y: " + image_size_y + ")");
+  OUTPUT.println("G99,(Max X: " + dx.min + " thru " + dx.max + ")");
+  OUTPUT.println("G99,(Max Y: " + dy.min + " thru " + dy.max + ")");
+  OUTPUT.println("G99,(gcode_offset_X: " + gcode_offset_x + ")");
+  OUTPUT.println("G99,(gcode_offset_Y: " + gcode_offset_y + ")");
+  
   gcode_header();
   
-  OUTPUT.println("G99,(Upper left),END");
-  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.min + test_length)+",END");
+  OUTPUT.println("G99,(Upper left)");
+  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y + test_length)+",END");
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.min)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.min + test_length) + "," + gcode_format(dy.min)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x + test_length) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
   OUTPUT.println("G1,Z0,END");
 
-  OUTPUT.println("G99,(Upper right),END");
-  OUTPUT.println("G1," + gcode_format(dx.max - test_length) + "," + gcode_format(dy.min)+",END");
+  OUTPUT.println("G99,(Upper right)");
+  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x - test_length) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.min)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.min + test_length)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y + test_length)+",END");
   OUTPUT.println("G1,Z0,END");
 
-  OUTPUT.println("G99,(Lower right),END");
-  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.max - test_length)+",END");
+  OUTPUT.println("G99,(Lower right)");
+  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y - test_length)+",END");
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.max) + "," + gcode_format(dy.max)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.max - test_length) + "," + gcode_format(dy.max)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x - test_length) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
   OUTPUT.println("G1,Z0,END");
 
-  OUTPUT.println("G99,(Lower left),END");
-  OUTPUT.println("G1," + gcode_format(dx.min + test_length) + "," + gcode_format(dy.max)+",END");
+  OUTPUT.println("G99,(Lower left)");
+  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x + test_length) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.max)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.min) + "," + gcode_format(dy.max - test_length)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
+  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y - test_length)+",END");
   OUTPUT.println("G1,Z0,END");
+
+
+  OUTPUT.println("G99,(Upper left)");
+  OUTPUT.println("G1," + gcode_format(0.0) + "," + gcode_format(0.0) +",END");
+  OUTPUT.println("G1,Z1,END");
+  OUTPUT.println("G1," + gcode_format(paper_size_x) + "," + gcode_format(0.0)+",END");
+  OUTPUT.println("G1," + gcode_format(paper_size_x) + "," + gcode_format(paper_size_y)+",END");
+  OUTPUT.println("G1," + gcode_format(0.0) + "," + gcode_format(paper_size_y)+",END");
+  OUTPUT.println("G1," + gcode_format(0.0) + "," + gcode_format(0.0)+",END");
+  OUTPUT.println("G1,Z0,END");
+
 
   gcode_trailer();
   OUTPUT.flush();

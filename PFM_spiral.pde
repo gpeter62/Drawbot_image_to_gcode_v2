@@ -13,7 +13,7 @@ class PFM_spiral implements pfm {
     image_crop();
     image_scale(1000);
     image_unsharpen(img, 3);
-    image_boarder("b6.png", 0, 0);
+    //image_boarder("b4.png", 0, 0);
     image_desaturate();
   }
     
@@ -21,13 +21,13 @@ class PFM_spiral implements pfm {
   public void find_path() {
     color c = 0;                               // Sampled color
     float b;                                   // Sampled brightness
-    float dist = 2;                            // Distance between rings
+    float dist = 10;                            //5 Distance between rings
     float radius = dist/2;                     // Current radius
     float aradius = 1;                         // Radius with brighness applied up
     float bradius = 1;                         // Radius with brighness applied down
     float alpha;                               // Initial rotation
-    float density = 75;                        // Density
-    float ampScale = 4.5;                      // Controls the amplitude
+    float density = 200;                        //75 Density   more density ->> less lines
+    float ampScale = 4;                      //4.5 Controls the amplitude
     float x, y, xa, ya, xb, yb;                // Current X and Y + jittered X and Y 
     float k;                                   // Current radius
     float endRadius;                           // Largest value the spiral needs to cover the image
