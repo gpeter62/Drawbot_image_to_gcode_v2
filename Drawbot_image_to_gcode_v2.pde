@@ -3,10 +3,10 @@
 // Jpeg to gcode simplified (kinda sorta works version, v3.75 (beta))
 //
 // Scott Cooper, Dullbits.com, <scottslongemailaddress@gmail.com>
-//
+//Modified by Peter Gautier gautier.p62@gmail.com   05/27/2020
 // Open creative GPL source commons with some BSD public GNU foundation stuff sprinkled in...
 // If anything here is remotely useable, please give me a shout.
-//
+//extream
 // Useful math:    http://members.chello.at/~easyfilter/bresenham.html
 // GClip:          https://forum.processing.org/two/discussion/6179/why-does-not-it-run-clipboard
 // Dynamic class:  https://processing.org/discourse/beta/num_1262759715.html
@@ -28,16 +28,16 @@ final float   image_size_x = 210-20;    //28 * 25.4  =  711.2
 final float   image_size_y = 295-20;    //36 * 25.4  =  914.4
 
 //A5 parameters
-final float   paper_size_x = 210;      //32 * 25.4  =  812.8
-final float   paper_size_y = 147;      //40 * 25.4  = 1016.0
-final float   image_size_x = 147-20;    //28 * 25.4  =  711.2
-final float   image_size_y = 210-20;    //36 * 25.4  =  914.4
-
+final float   paper_size_x = 147;      //32 * 25.4  =  812.8
+final float   paper_size_y = 210;      //40 * 25.4  = 1016.0
+final float   image_size_x = 210-20;    //28 * 25.4  =  711.2
+final float   image_size_y = 147-20;    //36 * 25.4  =  914.4
 */
+
 final float   paper_size_x = 210;      //32 * 25.4  =  812.8
 final float   paper_size_y = 295;      //40 * 25.4  = 1016.0
-final float   image_size_x = 210-40;    //28 * 25.4  =  711.2
-final float   image_size_y = 295-40;    //36 * 25.4  =  914.4
+final float   image_size_x = 168;    //28 * 25.4  =  711.2
+final float   image_size_y = 295-20;    //36 * 25.4  =  914.4
 
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
 final int     pen_count = 3;
@@ -53,7 +53,7 @@ final float   grid_scale = 25.4;              // Use 10.0 for centimeters, 25.4 
 // Every good program should have a shit pile of badly named globals.
 Class cl = null;
 pfm ocl;
-int current_pfm = 0;
+int current_pfm = 2;
 String[] pfms = {"PFM_original", "PFM_spiral", "PFM_squares"}; 
 
 int     state = 1;
@@ -64,8 +64,8 @@ String  display_mode = "drawing";
 PImage  img_orginal;               // The original image
 PImage  img_reference;             // After pre_processing, croped, scaled, boarder, etc.  This is what we will try to draw. 
 PImage  img;                       // Used during drawing for current brightness levels.  Gets damaged during drawing.
-float   gcode_offset_x;
-float   gcode_offset_y;
+float   gcode_offset_x=0;
+float   gcode_offset_y=0;
 float   gcode_scale;
 float   screen_scale;
 float   screen_scale_org;
@@ -240,7 +240,6 @@ void setup_squiggles() {
   gcode_scale_x = image_size_x / img.width;
   gcode_scale_y = image_size_y / img.height;
   gcode_scale = min(gcode_scale_x, gcode_scale_y);
-  gcode_offset_x = 0; gcode_offset_y = 0;
 
   screen_scale_x = width / (float)img.width;
   screen_scale_y = height / (float)img.height;
@@ -379,9 +378,10 @@ void keyPressed() {
     if (pen_count > 9) { pen_distribution[9] *= 0.55; }
 }
   if (key == 'g') { 
+    calc_maxs(display_line_count);
+    gcode_offset_x = (paper_size_x - (dx.max-dx.min)) / 2.0 + dx.min;  
+    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dy.max-dy.min)) / 2.0 + dy.min;
     create_gcode_files(display_line_count);
-    gcode_offset_x = (paper_size_x - (dx.max-dx.min)) / 2.0-dx.min;  
-    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dy.max-dy.min)) / 2.0 -dy.min;
     create_gcode_test_file ();
     create_svg_file(display_line_count);
     d1.render_to_pdf(display_line_count);
@@ -390,13 +390,13 @@ void keyPressed() {
 
   if (key == '\\') { screen_scale = screen_scale_org; screen_rotate=0; mx=0; my=0; }
   if (key == '<') {
-    int delta = -10000;
+    int delta = -1000;
     display_line_count = int(display_line_count + delta);
     display_line_count = constrain(display_line_count, 0, d1.line_count);
     //println("display_line_count: " + display_line_count);
   }
   if (key == '>') {
-    int delta = 10000;
+    int delta = 1000;
     display_line_count = int(display_line_count + delta);
     display_line_count = constrain(display_line_count, 0, d1.line_count);
     //println("display_line_count: " + display_line_count);

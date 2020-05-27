@@ -68,7 +68,9 @@ void create_gcode_files (int line_count) {
   float distance;
   
   // Loop over all lines for every pen.
-  for (int p=0; p<pen_count; p++) {    
+  for (int p=0; p<pen_count; p++) {   
+    dx.reset();
+    dy.reset();
     is_pen_down = false;
     pen_lifts = 2;
     pen_movement = 0;
@@ -79,6 +81,12 @@ void create_gcode_files (int line_count) {
     String gname = "gcode\\gcode_" + basefile_selected + "_pen" + p + "_" + copic_sets[current_copic_set][p] + ".txt";
     OUTPUT = createWriter(sketchPath("") + gname);
     OUTPUT.println(gcode_comments);
+    OUTPUT.println("G99,(paper_size_x: " + paper_size_x + ")");
+    OUTPUT.println("G99,(paper_size_y: " + paper_size_y + ")");
+    OUTPUT.println("G99,(image_size_x: " + image_size_x + ")");
+    OUTPUT.println("G99,(image_size_y: " + image_size_y + ")");
+    OUTPUT.println("G99,(gcode_offset_X: " + gcode_offset_x + ")");
+    OUTPUT.println("G99,(gcode_offset_Y: " + gcode_offset_y + ")");
     gcode_header();
     
     for (int i=1; i<line_count; i++) { 
@@ -141,6 +149,41 @@ void create_gcode_files (int line_count) {
   }
 }
 
+
+void calc_maxs(int line_count) {
+  float x;
+  float y;
+  dx.reset();
+  dy.reset();
+    // Loop over all lines for every pen.
+  for (int p=0; p<pen_count; p++) {    
+    x = 0;
+    y = 0;
+   for (int i=1; i<line_count; i++) {
+      if (d1.lines[i].pen_number == p) {
+        
+        float gcode_scaled_x1 = d1.lines[i].x1 * gcode_scale;
+        float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale;
+        float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale;
+        float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale;
+ 
+        if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
+          // Oh crap, where the line starts is not where I am, pick up the pen and move there.
+          x = gcode_scaled_x1;
+          y = gcode_scaled_y1;
+
+        }
+        
+       
+        x = gcode_scaled_x2;
+        y = gcode_scaled_y2;
+        dx.update_limit(gcode_scaled_x2);
+        dy.update_limit(gcode_scaled_y2);
+      }  //endif
+    } //end for
+  }  //end for pen  
+}    
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void create_gcode_test_file () {
   // The dx.min are already scaled to gcode.
@@ -155,8 +198,6 @@ void create_gcode_test_file () {
   OUTPUT.println("G99,(paper_size_y: " + paper_size_y + ")");
   OUTPUT.println("G99,(image_size_x: " + image_size_x + ")");
   OUTPUT.println("G99,(image_size_y: " + image_size_y + ")");
-  OUTPUT.println("G99,(Max X: " + dx.min + " thru " + dx.max + ")");
-  OUTPUT.println("G99,(Max Y: " + dy.min + " thru " + dy.max + ")");
   OUTPUT.println("G99,(gcode_offset_X: " + gcode_offset_x + ")");
   OUTPUT.println("G99,(gcode_offset_Y: " + gcode_offset_y + ")");
   
