@@ -22,10 +22,10 @@ final float   image_size_x = 420-40;    //28 * 25.4  =  711.2
 final float   image_size_y = 590-40;    //36 * 25.4  =  914.4
 
 //A4 parameters
-final float   paper_size_x = 210;      //32 * 25.4  =  812.8
-final float   paper_size_y = 295;      //40 * 25.4  = 1016.0
-final float   image_size_x = 210-20;    //28 * 25.4  =  711.2
-final float   image_size_y = 295-20;    //36 * 25.4  =  914.4
+final float   paper_size_x = 210;      //border: 2x10mm    ratio: 275/190 = 1.45
+final float   paper_size_y = 295;      
+final float   image_size_x = 190;    
+final float   image_size_y = 275; 
 
 //A5 parameters
 final float   paper_size_x = 147;      //32 * 25.4  =  812.8
@@ -34,13 +34,13 @@ final float   image_size_x = 210-20;    //28 * 25.4  =  711.2
 final float   image_size_y = 147-20;    //36 * 25.4  =  914.4
 */
 
-final float   paper_size_x = 210;      //32 * 25.4  =  812.8
-final float   paper_size_y = 295;      //40 * 25.4  = 1016.0
-final float   image_size_x = 168;    //28 * 25.4  =  711.2
-final float   image_size_y = 295-20;    //36 * 25.4  =  914.4
+final float   paper_size_x = 210;      //border: 2x10mm    ratio: 275/190 = 1.45
+final float   paper_size_y = 295;      
+final float   image_size_x = 190;    
+final float   image_size_y = 211;    
 
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
-final int     pen_count = 3;
+final int     pen_count = 6;
 
 final float   pen_width = 0.4;               //mm, determines image_scale, reduce, if solid black areas are speckled with white holes.
 
@@ -94,8 +94,8 @@ botDrawing d1;
 float[] pen_distribution = new float[pen_count];
 
 String[][] copic_sets = {
-  {"N10", "N6", "N4", "N2", "N2", "N2"},       // Dark Greys
-//  {"100", "N10", "N8", "N6", "N4", "N2"},       // Dark Greys
+//  {"N10", "N6", "N4", "N2", "N2", "N2"},       // Dark Greys
+  {"100", "N10", "N8", "N6", "N4", "N2"},       // Dark Greys
   {"100", "100", "N7", "N5", "N3", "N2"},       // Light Greys
   {"100", "W10", "W8", "W6", "W4", "W2"},       // Warm Greys
   {"100", "C10", "C8", "C6", "C4", "C2"},       // Cool Greys
@@ -273,6 +273,7 @@ void render_all() {
   if (display_mode == "pen") {
     //image(img, 0, 0);
     d1.render_one_pen(display_line_count, pen_selected);
+    //d1.render_one_pen(display_line_count, 5);
   }
   
   if (display_mode == "original") {
@@ -379,8 +380,8 @@ void keyPressed() {
 }
   if (key == 'g') { 
     calc_maxs(display_line_count);
-    gcode_offset_x = (paper_size_x - (dx.max-dx.min)) / 2.0 + dx.min;  
-    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dy.max-dy.min)) / 2.0 + dy.min;
+    gcode_offset_x = (paper_size_x - (dx.max-dx.min)) / 2.0 - dx.min;  
+    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dy.max-dy.min)) / 2.0 - dy.min;
     create_gcode_files(display_line_count);
     create_gcode_test_file ();
     create_svg_file(display_line_count);
