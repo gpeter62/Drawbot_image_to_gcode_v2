@@ -10,13 +10,11 @@ class Limit {
     if (value_ < min) { min = value_; }
     if (value_ > max) { max = value_; }
   }
-  
   void reset() {
-    min = 2147483647;
-    max = -2147483648;
-  }
- }
-
+      min = 2147483647;
+      max = -2147483648;
+}
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void grid() {
   // This will give you a rough idea of the size of the printed image, in "grid_scale" units.
@@ -111,4 +109,3 @@ void mouse_point() {
    }
 }
   
-///////////////////////////////////////////////////////////////////////////////////////////////////////

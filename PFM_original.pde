@@ -7,11 +7,11 @@ class PFM_original implements pfm {
 
   final int    squiggle_length = 200;      //500 How often to lift the pen
   final int    adjustbrightness = 10;       //10  How fast it moves from dark to light, over-draw
-  final float  desired_brightness = 254;   // 250 How long to process.  You can always stop early with "s" key
+  final float  desired_brightness = 230;   // 250 How long to process.  You can always stop early with "s" key
   final int    squiggles_till_first_change = 3000;  //190
 
   int          tests = 720;                 // Reasonable values:  13 for development, 720 for final
-  int          line_length = int(random(3, 10));  // Reasonable values:  3 through 100
+  int          line_length = int(random(3, 10));  // 3,30  Reasonable values:  3 through 100
 
   int          squiggle_count;
   int          darkest_x;
@@ -145,7 +145,7 @@ class PFM_original implements pfm {
     //delta_angle = 360.0 / (float)tests;
 
     if (squiggle_count < squiggles_till_first_change) { 
-      //line_length = int(random(3, 60));
+      line_length = int(random(3, 20));   //GP
       delta_angle = 360.0 / (float)tests;
     } else {
       //start_angle = degrees(atan2(img.height/2.0 - start_y -470, img.width/2.0 - start_x+130) )-10+90;    // wierd spiral

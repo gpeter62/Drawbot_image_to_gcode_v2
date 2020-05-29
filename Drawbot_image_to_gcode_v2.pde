@@ -37,7 +37,7 @@ final float   image_size_y = 147-20;    //36 * 25.4  =  914.4
 final float   paper_size_x = 210;      //border: 2x10mm    ratio: 275/190 = 1.45
 final float   paper_size_y = 295;      
 final float   image_size_x = 190;    
-final float   image_size_y = 211;    
+final float   image_size_y = 275;    
 
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
 final int     pen_count = 6;
@@ -119,7 +119,7 @@ String[][] copic_sets = {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void setup() {
-  size(1415, 900, P3D);
+  size(1415, 900, P3D);    //P3D...P2D, FX2D,  
   frame.setLocation(200, 200);
   surface.setResizable(true);
   surface.setTitle("Drawbot_image_to_gcode_v2, version 3.75");

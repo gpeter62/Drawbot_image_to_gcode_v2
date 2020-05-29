@@ -6,10 +6,10 @@ class PFM_squares implements pfm {
 
   final int    squiggle_length = 500;      //1000 How often to lift the pen
   final int    adjustbrightness = 9;        //9 How fast it moves from dark to light, over-draw
-  final float  desired_brightness = 250;    //250 How long to process.  You can always stop early with "s" key
+  final float  desired_brightness = 230;    //250 How long to process.  You can always stop early with "s" key
  
   int          tests = 720;                  // Reasonable values:  13 for development, 720 for final
-  int          line_length = 20;           // Reasonable values:  3 through 100
+  int          line_length = 50;           // Reasonable values:  3 through 100
  
   int          squiggle_count;
   int          darkest_x;
@@ -111,9 +111,9 @@ class PFM_squares implements pfm {
     
     start_angle = 36 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/26+26)) ));
     delta_angle = 360.0 / (float)tests;
-    
+    line_length = int(random(3, 20));
     for (int d=0; d<tests; d++) {
-      float b = bresenham_avg_brightness(start_x, start_y, line_length, (delta_angle * d) + start_angle);
+      float b = bresenham_avg_brightness(start_x, start_y, line_length, (delta_angle * d) + start_angle);   //GP    line_length
     }
   }
   

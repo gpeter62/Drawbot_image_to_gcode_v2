@@ -99,7 +99,7 @@ ArrayList <intPoint> midpoint_circle(int x0, int y0, int radius) {
   
     pnts = bresenham(x0, y0, x1, y1);
     for (intPoint p : pnts) {
-      lighten_one_pixel(adjustbrightness * 5, p.x, p.y);
+      lighten_one_pixel(100, p.x, p.y);   //GP lighten_one_pixel(adjustbrightness * 5, p.x, p.y);
     }
   }
 
