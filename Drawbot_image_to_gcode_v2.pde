@@ -36,7 +36,7 @@ final float   image_size_y = 147-20;    //36 * 25.4  =  914.4
 
 final float   paper_size_x = 210;      //border: 2x10mm    ratio: 275/190 = 1.45
 final float   paper_size_y = 295;      
-final float   image_size_x = 190;    
+final float   image_size_x = 182g;    
 final float   image_size_y = 275;    
 
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper

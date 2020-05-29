@@ -105,7 +105,7 @@ void create_gcode_files (int line_count) {
             is_pen_down = false;
           }
           distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-          String buf = "G1," + gcode_format(gcode_scaled_x1+gcode_offset_x) + "," + gcode_format(gcode_scaled_y1+gcode_offset_y)+",END";
+          String buf = "G1," + gcode_format(gcode_scaled_x1) + "," + gcode_format(gcode_scaled_y1)+",END";
           OUTPUT.println(buf);
           x = gcode_scaled_x1;
           y = gcode_scaled_y1;
@@ -129,7 +129,7 @@ void create_gcode_files (int line_count) {
           }
         }
         
-        String buf = "G1," + gcode_format(gcode_scaled_x2+gcode_offset_x) + "," + gcode_format(gcode_scaled_y2+gcode_offset_y)+",END";
+        String buf = "G1," + gcode_format(gcode_scaled_x2) + "," + gcode_format(gcode_scaled_y2)+",END";
         OUTPUT.println(buf);
         x = gcode_scaled_x2;
         y = gcode_scaled_y2;
