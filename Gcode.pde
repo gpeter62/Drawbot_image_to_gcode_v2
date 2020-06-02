@@ -6,7 +6,6 @@
 void gcode_header() {
   OUTPUT.println("G21,END");
   OUTPUT.println("G90,END");
-  //OUTPUT.println("G1,Z0,END");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -15,16 +14,12 @@ void gcode_trailer() {
             OUTPUT.println("G1,Z0,END");
             is_pen_down = false;
   }
-  //OUTPUT.println("G1," + gcode_format(0.1) + "," + gcode_format(0.1)+",END");
-  //OUTPUT.println("G1,0,0,END");
 }
 
 void gcode_comment(String comment) {
   gcode_comments += ("G99,(" + comment + ")")+ "\n";
   println(comment);
 }
-
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 void pen_up() {
@@ -66,6 +61,7 @@ void create_gcode_files (int line_count) {
   float x;
   float y;
   float distance;
+  String buf;
   
   // Loop over all lines for every pen.
   for (int p=0; p<pen_count; p++) {   
@@ -100,13 +96,16 @@ void create_gcode_files (int line_count) {
  
         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
           // Oh crap, where the line starts is not where I am, pick up the pen and move there.
+		  buf = "G99," + "Crap XY:" +  gcode_format(x) + "," + gcode_format(y);
+		  OUTPUT.println(buf);
+		  buf = "G99,X1,Y1,X2,Y2:" + gcode_format(gcode_scaled_x1) + "," + gcode_format(gcode_scaled_y1) + "," + gcode_format(gcode_scaled_x2) + "," + gcode_format(gcode_scaled_y2);
+		  OUTPUT.println(buf);
           if (is_pen_down == true) {
             OUTPUT.println("G1,Z0,END");
             is_pen_down = false;
           }
           distance = sqrt( sq(abs(x - gcode_scaled_x1)) + sq(abs(y - gcode_scaled_y1)) );
-          String buf = "G1," + gcode_format(gcode_scaled_x1) + "," + gcode_format(gcode_scaled_y1)+",END";
-          OUTPUT.println(buf);
+          G1print(gcode_scaled_x1,gcode_scaled_y1);
           x = gcode_scaled_x1;
           y = gcode_scaled_y1;
           pen_movement = pen_movement + distance;
@@ -128,9 +127,12 @@ void create_gcode_files (int line_count) {
             pen_lifts++;
           }
         }
-        
-        String buf = "G1," + gcode_format(gcode_scaled_x2) + "," + gcode_format(gcode_scaled_y2)+",END";
-        OUTPUT.println(buf);
+        G1print(gcode_scaled_x2,gcode_scaled_y2);
+        if (gcode_scaled_x2<dxALL.min+gcode_offset_x || gcode_scaled_x2>dxALL.max+gcode_offset_x || 
+            gcode_scaled_y2<dyALL.min+gcode_offset_y || gcode_scaled_y2>dyALL.max+gcode_offset_y)  {
+          buf = "G99,Out ot paper line" + i + ": " + gcode_format(gcode_scaled_x2) + "," + gcode_format(gcode_scaled_y2);
+          OUTPUT.println(buf);
+        }
         x = gcode_scaled_x2;
         y = gcode_scaled_y2;
         dx.update_limit(gcode_scaled_x2);
@@ -139,8 +141,8 @@ void create_gcode_files (int line_count) {
     }
     
     gcode_trailer();
-    OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing  / 25.4 / 12 + " feet)");
-    OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement  / 25.4 / 12 + " feet");
+    OUTPUT.println("G99,(Drew " + lines_drawn + " lines for " + pen_drawing/1000 + " meter)");
+    OUTPUT.println("G99,(Pen was lifted " + pen_lifts + " times for " + pen_movement/1000 + " meter");
     OUTPUT.println("G99,(Extreams of X: " + dx.min + " thru " + dx.max + ")");
     OUTPUT.println("G99,(Extreams of Y: " + dy.min + " thru " + dy.max + ")");
     OUTPUT.flush();
@@ -153,8 +155,8 @@ void create_gcode_files (int line_count) {
 void calc_maxs(int line_count) {
   float x;
   float y;
-  dx.reset();
-  dy.reset();
+  dxALL.reset();
+  dyALL.reset();
     // Loop over all lines for every pen.
   for (int p=0; p<pen_count; p++) {    
     x = 0;
@@ -166,22 +168,24 @@ void calc_maxs(int line_count) {
         float gcode_scaled_y1 = d1.lines[i].y1 * gcode_scale;
         float gcode_scaled_x2 = d1.lines[i].x2 * gcode_scale;
         float gcode_scaled_y2 = d1.lines[i].y2 * gcode_scale;
- 
+        
         if (x != gcode_scaled_x1 || y != gcode_scaled_y1) {
           // Oh crap, where the line starts is not where I am, pick up the pen and move there.
           x = gcode_scaled_x1;
           y = gcode_scaled_y1;
-
+          dxALL.update_limit(gcode_scaled_x1);
+          dyALL.update_limit(gcode_scaled_y1);
         }
-        
-       
+               
         x = gcode_scaled_x2;
         y = gcode_scaled_y2;
-        dx.update_limit(gcode_scaled_x2);
-        dy.update_limit(gcode_scaled_y2);
+        dxALL.update_limit(gcode_scaled_x2);
+        dyALL.update_limit(gcode_scaled_y2);
       }  //endif
     } //end for
   }  //end for pen  
+  println("dxALL min/max: " + dxALL.min + "/" + dxALL.max);
+  println("dyALL min/max: " + dyALL.min + "/" + dyALL.max);
 }    
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -200,52 +204,58 @@ void create_gcode_test_file () {
   OUTPUT.println("G99,(image_size_y: " + image_size_y + ")");
   OUTPUT.println("G99,(gcode_offset_X: " + gcode_offset_x + ")");
   OUTPUT.println("G99,(gcode_offset_Y: " + gcode_offset_y + ")");
-  
+  OUTPUT.println("G99,(dxALL.min: " + dxALL.min+ ")");
+  OUTPUT.println("G99,(dxALL.max: " + dxALL.max+ ")");
+  OUTPUT.println("G99,(dyALL.min: " + dyALL.min+ ")");
+  OUTPUT.println("G99,(dyALL.max: " + dyALL.max+ ")");
+    
   gcode_header();
   
   OUTPUT.println("G99,(Upper left)");
-  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y + test_length)+",END");
+  G1print(dxALL.min+gcode_offset_x,dyALL.min+gcode_offset_y + test_length);
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x + test_length) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
+  G1print(dxALL.min+gcode_offset_x,dyALL.min+gcode_offset_y);
+  G1print(dxALL.min+gcode_offset_x + test_length,dyALL.min+gcode_offset_y);
   OUTPUT.println("G1,Z0,END");
 
   OUTPUT.println("G99,(Upper right)");
-  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x - test_length) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
+  G1print(dxALL.max+gcode_offset_x - test_length,dyALL.min+gcode_offset_y);
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.min+gcode_offset_y + test_length)+",END");
+  G1print(dxALL.max+gcode_offset_x,dyALL.min+gcode_offset_y);
+  G1print(dxALL.max+gcode_offset_x,dyALL.min+gcode_offset_y + test_length);
   OUTPUT.println("G1,Z0,END");
 
   OUTPUT.println("G99,(Lower right)");
-  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y - test_length)+",END");
+  G1print(dxALL.max+gcode_offset_x,dyALL.max+gcode_offset_y - test_length);
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.max+gcode_offset_x - test_length) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
+  G1print(dxALL.max+gcode_offset_x,dyALL.max+gcode_offset_y);
+  G1print(dxALL.max+gcode_offset_x - test_length,dyALL.max+gcode_offset_y);
   OUTPUT.println("G1,Z0,END");
 
   OUTPUT.println("G99,(Lower left)");
-  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x + test_length) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
+  G1print(dxALL.min+gcode_offset_x + test_length,dyALL.max+gcode_offset_y);
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y)+",END");
-  OUTPUT.println("G1," + gcode_format(dx.min+gcode_offset_x) + "," + gcode_format(dy.max+gcode_offset_y - test_length)+",END");
+  G1print(dxALL.min+gcode_offset_x,dyALL.max+gcode_offset_y);
+  G1print(dxALL.min+gcode_offset_x,dyALL.max+gcode_offset_y - test_length);
   OUTPUT.println("G1,Z0,END");
-
 
   OUTPUT.println("G99,(Upper left)");
-  OUTPUT.println("G1," + gcode_format(0.0) + "," + gcode_format(0.0) +",END");
+  G1print(0.0,0.0);
   OUTPUT.println("G1,Z1,END");
-  OUTPUT.println("G1," + gcode_format(paper_size_x) + "," + gcode_format(0.0)+",END");
-  OUTPUT.println("G1," + gcode_format(paper_size_x) + "," + gcode_format(paper_size_y)+",END");
-  OUTPUT.println("G1," + gcode_format(0.0) + "," + gcode_format(paper_size_y)+",END");
-  OUTPUT.println("G1," + gcode_format(0.0) + "," + gcode_format(0.0)+",END");
+  G1print(paper_size_x,0.0);
+  G1print(paper_size_x,paper_size_y);
+  G1print(0.0,paper_size_y);
+  G1print(0.0,0.0);
   OUTPUT.println("G1,Z0,END");
-
 
   gcode_trailer();
   OUTPUT.flush();
   OUTPUT.close();
   println("gcode test created:  " + gname);
+}
+
+void G1print(float x,float y) {
+  OUTPUT.println("G1," + gcode_format(x) + "," + gcode_format(y)+",END");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

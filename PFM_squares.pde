@@ -6,7 +6,7 @@ class PFM_squares implements pfm {
 
   final int    squiggle_length = 500;      //1000 How often to lift the pen
   final int    adjustbrightness = 9;        //9 How fast it moves from dark to light, over-draw
-  final float  desired_brightness = 240;    //250 How long to process.  You can always stop early with "s" key
+  final float  desired_brightness = 245;    //250 How long to process.  You can always stop early with "s" key
  
   int          tests = 720;                  // Reasonable values:  13 for development, 720 for final
   int          line_length = 50;           // Reasonable values:  3 through 100
@@ -38,8 +38,8 @@ class PFM_squares implements pfm {
   private void find_squiggle() {
     int x, y;
   
-    //find_darkest();
-    find_darkest_area();
+    find_darkest();
+    //find_darkest_area();
     x = darkest_x;
     y = darkest_y;
     squiggle_count++;
@@ -64,7 +64,7 @@ class PFM_squares implements pfm {
     darkest_value = 257;
     int darkest_loc = 0;
     
-    for (int loc=0; loc < img.width * img.height; loc++) {
+    for (int loc=0; loc < img.width * img.height; loc++) {   //GP starting from 1
       float r = brightness(img.pixels[loc]);
       if (r < darkest_value) {
         darkest_value = r + random(1);
@@ -73,6 +73,8 @@ class PFM_squares implements pfm {
     }
     darkest_x = darkest_loc % img.width;
     darkest_y = (darkest_loc-darkest_x) / img.width;
+    if ((darkest_x<0) || (darkest_y<0)) println("find_darkest:" + darkest_x + "," + darkest_y + " negativ!!!");
+    //println("find_darkest:" + darkest_x + "," + darkest_y);
   }
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +91,7 @@ class PFM_squares implements pfm {
     img2 = createImage(img.width / area_size, img.height / area_size, RGB);
     img2.copy(img, 0, 0, img.width, img.height, 0, 0, img2.width, img2.height);
 
-    for (int loc=0; loc < img2.width * img2.height; loc++) {
+    for (int loc=0; loc < img2.width * img2.height; loc++) {  //GP starting from 1
       float r = brightness(img2.pixels[loc]);
       
       if (r < darkest_value) {
@@ -101,14 +103,16 @@ class PFM_squares implements pfm {
     darkest_y = (darkest_loc - darkest_x) / img2.width;
     darkest_x = darkest_x * area_size + int(random(area_size));
     darkest_y = darkest_y * area_size + int(random(area_size));
-  }
+    if ((darkest_x<0) || (darkest_y<0)) println("find_darkest_area:" + darkest_x + "," + darkest_y + " negativ!!!");
+   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   private void find_darkest_neighbor(int start_x, int start_y) {
     darkest_neighbor = 257;
     float start_angle;
     float delta_angle;
-    
+
+    if ((start_x<0) || (start_y<0)) println("find_darkest_neighbor:" + darkest_x + "," + darkest_y + " negativ!!!");
     start_angle = 36 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/26+26)) ));
     delta_angle = 360.0 / (float)tests;
     line_length = int(random(3, 20));

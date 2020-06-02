@@ -56,8 +56,8 @@ class PFM_original implements pfm {
   private void find_squiggle() {
     int x, y;
   
-    //find_darkest();
-    find_darkest_area();
+    find_darkest();
+    //find_darkest_area();
     x = darkest_x;
     y = darkest_y;
     squiggle_count++;
@@ -73,6 +73,7 @@ class PFM_original implements pfm {
       move_abs(0, darkest_x, darkest_y);
       x = darkest_x;
       y = darkest_y;
+      if ((darkest_x<0) || (darkest_y<0)) println("find_squiggle:" + darkest_x + "," + darkest_y + " negativ!!!");
     }
     pen_up();
   }
@@ -91,6 +92,7 @@ class PFM_original implements pfm {
     }
     darkest_x = darkest_loc % img.width;
     darkest_y = (darkest_loc-darkest_x) / img.width;
+    if ((darkest_x<0) || (darkest_y<0)) println("find_darkest:" + darkest_x + "," + darkest_y + " negativ!!!");
   }
   
   /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -119,6 +121,7 @@ class PFM_original implements pfm {
     darkest_y = (darkest_loc - darkest_x) / img2.width;
     darkest_x = darkest_x * area_size + int(random(area_size));
     darkest_y = darkest_y * area_size + int(random(area_size));
+    if ((darkest_x<0) || (darkest_y<0)) println("find_darkest_area:" + darkest_x + "," + darkest_y + " negativ!!!");
   }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +129,7 @@ class PFM_original implements pfm {
     darkest_neighbor = 257;
     float delta_angle;
     float start_angle;
-    
+    if ((start_x<0) || (start_y<0)) println("find_darkest_neighbor:" + start_x + "," + start_y + " negativ!!!");
     //start_angle = random(-35, -15) + cos(radians(start_x/4+(start_y/6)))*30;
     //start_angle = random(-95, -75) + cos(radians(start_y/15))*90;
     //start_angle = 36 + degrees( ( sin(radians(start_x/9+46)) + cos(radians(start_y/26+26)) ));

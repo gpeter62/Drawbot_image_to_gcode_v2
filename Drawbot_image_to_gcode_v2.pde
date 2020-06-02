@@ -16,10 +16,10 @@ import processing.pdf.*;
 /*
 // Constants                          //original sizes
 //A3 parameters
-final float   paper_size_x = 420;      //32 * 25.4  =  812.8
-final float   paper_size_y = 590;      //40 * 25.4  = 1016.0
-final float   image_size_x = 420-40;    //28 * 25.4  =  711.2
-final float   image_size_y = 590-40;    //36 * 25.4  =  914.4
+final float   paper_size_x = 420;     
+final float   paper_size_y = 590;    
+final float   image_size_x = 420-40;   
+final float   image_size_y = 590-40;  
 
 //A4 parameters
 final float   paper_size_x = 210;      //border: 2x10mm    ratio: 275/190 = 1.45
@@ -34,10 +34,10 @@ final float   image_size_x = 210-20;    //28 * 25.4  =  711.2
 final float   image_size_y = 147-20;    //36 * 25.4  =  914.4
 */
 
-final float   paper_size_x = 210;      //border: 2x10mm    ratio: 275/190 = 1.45
-final float   paper_size_y = 295;      
-final float   image_size_x = 182g;    
-final float   image_size_y = 275;    
+final float   paper_size_x = 400;     
+final float   paper_size_y = 540;    
+final float   image_size_x = 331;   
+final float   image_size_y = 500;  
 
 final float   paper_top_to_origin = 0;  //285 mm, make smaller to move drawing down on paper
 final int     pen_count = 6;
@@ -87,6 +87,7 @@ int     startTime = 0;
 boolean ctrl_down = false;
 
 Limit   dx, dy;
+Limit   dxALL, dyALL;
 Copix   copic;
 PrintWriter OUTPUT;
 botDrawing d1;
@@ -130,6 +131,8 @@ void setup() {
   d1 = new botDrawing();
   dx = new Limit(); 
   dy = new Limit(); 
+  dxALL = new Limit(); 
+  dyALL = new Limit(); 
   copic = new Copix();
   loadInClass(pfms[current_pfm]);
 
@@ -181,9 +184,6 @@ void draw() {
 
     println("elapsed time: " + (millis() - startTime) / 1000.0 + " seconds");
     display_line_count = d1.line_count;
-  
-    gcode_comment ("extreams of X: " + dx.min + " thru " + dx.max);
-    gcode_comment ("extreams of Y: " + dy.min + " thru " + dy.max);
     state++;
     break;
   case 5: 
@@ -380,8 +380,8 @@ void keyPressed() {
 }
   if (key == 'g') { 
     calc_maxs(display_line_count);
-    gcode_offset_x = (paper_size_x - (dx.max-dx.min)) / 2.0 - dx.min;  
-    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dy.max-dy.min)) / 2.0 - dy.min;
+    gcode_offset_x = (paper_size_x - (dxALL.max-dxALL.min)) / 2.0 - dxALL.min;  
+    gcode_offset_y = paper_top_to_origin + (paper_size_y - (dyALL.max-dyALL.min)) / 2.0 - dyALL.min;
     create_gcode_files(display_line_count);
     create_gcode_test_file ();
     create_svg_file(display_line_count);
